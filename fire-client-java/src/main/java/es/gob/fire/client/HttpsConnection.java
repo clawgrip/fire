@@ -34,7 +34,7 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 /** Clase de conexi&oacute;n mediante SSL. */
-public final class HttpsConnection {
+public final class HttpsConnection implements NetConnection {
 
 	private static final String KEYSTORE_PROPERTY = "javax.net.ssl.keyStore"; //$NON-NLS-1$
 
@@ -102,8 +102,10 @@ public final class HttpsConnection {
 	 * @throws IllegalArgumentException Cuando se configura un fichero de almac&eacute;n que no existe.
 	 * @throws GeneralSecurityException Cuando se produce un error en la configuraci&oacute;n de la conexi&oacute;n.
 	 * @throws IOException Cuando se produce un error en la conexi&oacute;n con el servidor remoto. */
-	private void configureConnection(final Properties config, final PasswordDecipher decipher) throws IllegalArgumentException, GeneralSecurityException, IOException {
-
+	private void configureConnection(final Properties config,
+			                         final PasswordDecipher decipher) throws IllegalArgumentException,
+	                                                                         GeneralSecurityException,
+	                                                                         IOException {
 		// Inicializamos el KeyStore
 		KeyStore ks = null;
 		KeyStorePassword ksPassword = null;
@@ -217,13 +219,7 @@ public final class HttpsConnection {
 		this.ctx.init(keyManagers, tsManager, null);
 	}
 
-	/** Realiza una peticion HTTP a una URL.
-	 * @param url URL a la que se realiza la petici&oacute;n.
-	 * @param urlParameters Par&aacute;metros transmitidos en la llamada.
-	 * @param method M&eacute;todo HTTP utilizado.
-	 * @return Datos recuperados como resultado de la llamada.
-	 * @throws IOException Cuando ocurre un error durante la conexi&oacute;n/lectura o el
-	 *                     servidor devuelve un error en la operaci&oacute;n. */
+	@Override
 	public byte[] readUrl(final String url, final String urlParameters, final Method method) throws IOException {
 
 		if (url == null) {

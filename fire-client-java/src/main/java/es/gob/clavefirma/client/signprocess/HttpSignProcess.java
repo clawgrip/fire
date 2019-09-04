@@ -276,8 +276,10 @@ public final class HttpSignProcess {
         catch (final IOException e) {
         	if (e instanceof HttpError) {
         		final HttpError he = (HttpError) e;
-        		LOGGER.severe(
-    				"Error en la consulta al servicio de recuperacion de firma (" + URL_BASE + ") con respuesta '" + he.getResponseDescription() + "': " + e //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        		LOGGER.log(
+    				Level.SEVERE,
+    				"Error en la consulta al servicio de recuperacion de firma (" + URL_BASE + ") con respuesta '" + he.getResponseDescription() + "': " + e, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    				e
 				);
         		switch (he.getResponseCode()) {
 	        		case HttpURLConnection.HTTP_FORBIDDEN:
