@@ -35,6 +35,10 @@ public final class UpgraderAdesT implements Upgrader {
 	@Override
 	public UpgradeResult upgradeSignature(final byte[] signature,
 			                              final String upgradeFormat) throws UpgradeException {
+		if (upgradeFormat == null) {
+			return new UpgradeResult(signature, null);
+		}
+
 		final UpgradeTarget target;
 		try {
 			target = UpgradeTarget.getUpgradeTarget(upgradeFormat);
