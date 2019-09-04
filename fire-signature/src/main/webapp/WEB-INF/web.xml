@@ -9,6 +9,12 @@
   	<servlet-class>es.gob.fire.server.services.FIReService</servlet-class>
   </servlet>
   <servlet>
+  	<description>Servicio general de firma en tres fases</description>
+  	<display-name>signatureService</display-name>
+  	<servlet-name>signatureService</servlet-name>
+  	<servlet-class>es.gob.afirma.triphase.server.SignatureService</servlet-class>
+  </servlet>
+  <servlet>
   	<description>Servicio de recuperacion de certificados compatible con Cl@ve Firma v1.1</description>
   	<display-name>getCertificates</display-name>
   	<servlet-name>getCertificates</servlet-name>
@@ -126,6 +132,10 @@
   <servlet-mapping>
   	<servlet-name>fireService</servlet-name>
   	<url-pattern>/fireService</url-pattern>
+  </servlet-mapping>
+   <servlet-mapping>
+  	<servlet-name>signatureService</servlet-name>
+  	<url-pattern>/signatureService</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
   	<servlet-name>getCertificates</servlet-name>
