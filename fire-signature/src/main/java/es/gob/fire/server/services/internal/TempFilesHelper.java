@@ -25,10 +25,7 @@ import java.util.logging.Logger;
 import es.gob.afirma.core.misc.AOUtil;
 import es.gob.fire.signature.ConfigManager;
 
-/**
- * Clase con m&eacute;todos de ayuda para la gesti&oacute;n de ficheros temporales.
- *
- */
+/** Ayuda para la gesti&oacute;n de ficheros temporales. */
 public final class TempFilesHelper {
 
 	private static final Logger LOGGER = Logger.getLogger(TempFilesHelper.class.getName());
@@ -48,16 +45,20 @@ public final class TempFilesHelper {
             final File f = tmpDir != null && tmpDir.trim().length() > 0 ? new File(tmpDir.trim()) : null;
             if (f == null || !f.isDirectory()) {
                 LOGGER.severe(
-                		"El directorio temporal configurado (" + //$NON-NLS-1$
-                		(f != null ? f.getAbsolutePath() : null) +
-                		") no es valido, se usara el por defecto: " + defaultDir); //$NON-NLS-1$
+            		"El directorio temporal configurado (" + //$NON-NLS-1$
+            		(f != null ? f.getAbsolutePath() : null) +
+            		") no es valido, se usara el por defecto: " + defaultDir //$NON-NLS-1$
+        		);
                 TMPDIR = new File(defaultDir);
-            } else if (!f.canRead() || !f.canWrite()) {
+            }
+            else if (!f.canRead() || !f.canWrite()) {
             	LOGGER.severe(
-                		"El directorio temporal configurado (" + f.getAbsolutePath() + //$NON-NLS-1$
-                		") no tiene permiso de lectura/escritura, se usara el por defecto: " + defaultDir); //$NON-NLS-1$
+            		"El directorio temporal configurado (" + f.getAbsolutePath() + //$NON-NLS-1$
+            		") no tiene permiso de lectura/escritura, se usara el por defecto: " + defaultDir //$NON-NLS-1$
+    			);
             	TMPDIR = new File(defaultDir);
-            } else {
+            }
+            else {
                 LOGGER.info("Se usara el directorio temporal configurado: " + f.getAbsolutePath()); //$NON-NLS-1$
                 TMPDIR = f;
             }
@@ -69,9 +70,7 @@ public final class TempFilesHelper {
         }
     }
 
-    /**
-     * Constructor privado para no permir la instanciaci&oacute;n
-     */
+    /** Constructor privado para no permir la instanciaci&oacute;n. */
     private TempFilesHelper() {
         // no instanciable
     }
@@ -107,24 +106,28 @@ public final class TempFilesHelper {
                     "El nombre del fichero a recuperar no es valido: " + filename //$NON-NLS-1$
             );
         }
+
         final File f = new File(TMPDIR, filename);
         if (!f.getCanonicalPath().startsWith(TMPDIR.getCanonicalPath())){
 			throw new SecurityException("Se ha intentado acceder a una ruta fuera del directorio de logs: " + f.getAbsolutePath()); //$NON-NLS-1$
         }
-        final InputStream fis = new FileInputStream(f);
-        final InputStream bis = new BufferedInputStream(fis);
-        final byte[] ret = AOUtil.getDataFromInputStream(bis);
-        bis.close();
-        fis.close();
+
+        final byte[] ret;
+        try (
+	        final InputStream fis = new FileInputStream(f);
+	        final InputStream bis = new BufferedInputStream(fis);
+		) {
+	        ret = AOUtil.getDataFromInputStream(bis);
+	        bis.close();
+	        fis.close();
+        }
 
         return ret;
     }
 
-    /**
-     * Elimina un fichero situado en un directorio
+    /** Elimina un fichero situado en un directorio
      * concreto.
-     * @param filename Nombre del fichero.
-     */
+     * @param filename Nombre del fichero. */
     public static void deleteTempData(final String filename) {
         new File(TMPDIR, filename).delete();
     }
@@ -140,10 +143,10 @@ public final class TempFilesHelper {
     public static String storeTempData(final String tempFileName, final byte[] data) throws IOException {
         if (data == null || data.length < 1) {
             throw new IllegalArgumentException(
-                    "Los datos a guardar no pueden ser nulos ni vacios" //$NON-NLS-1$
+                "Los datos a guardar no pueden ser nulos ni vacios" //$NON-NLS-1$
             );
         }
-        File f;
+        final File f;
         if (tempFileName != null) {
         	f = new File(TMPDIR, tempFileName);
         }
@@ -151,16 +154,21 @@ public final class TempFilesHelper {
         	f = File.createTempFile(DEFAULT_PREFIX, null, TMPDIR);
         }
 
-        final OutputStream fos = new FileOutputStream(f);
-        final OutputStream bos = new BufferedOutputStream(fos);
-        bos.write(data);
-        bos.close();
-        fos.close();
+        try (
+	        final OutputStream fos = new FileOutputStream(f);
+	        final OutputStream bos = new BufferedOutputStream(fos);
+		) {
+	        bos.write(data);
+	        bos.close();
+	        fos.close();
+        }
         LOGGER.fine("Almacenado temporal de datos en: " + f.getAbsolutePath()); //$NON-NLS-1$
         setFileSize(f.length());
         return f.getName();
     }
 
+	/** Obtiene el tama&ntilde;o del fichero.
+	 * @return Tama&ntilde;o del fichero. */
 	public static long getFileSize() {
 		return fileSize;
 	}
@@ -168,37 +176,32 @@ public final class TempFilesHelper {
 	private static  void setFileSize(final long fileSize) {
 		TempFilesHelper.fileSize = fileSize;
 	}
-  /**
-     * Recorre el directorio temporal eliminando los ficheros que hayan sobrepasado el tiempo
+
+    /** Recorre el directorio temporal eliminando los ficheros que hayan sobrepasado el tiempo
      * indicado sin haber sido modificados.
      * @param timeout Tiempo en milisegundos que debe haber transcurrido desde la &uacute;ltima
-     * modificaci&oacute;n de un fichero para considerarse caducado.
-     */
+     *                modificaci&oacute;n de un fichero para considerarse caducado. */
     public static void cleanExpiredFiles(final long timeout) {
-
     	for (final File tempFile : TMPDIR.listFiles(new ExpiredFileFilter(timeout))) {
     		try {
     			Files.delete(tempFile.toPath());
     		}
     		catch (final Exception e) {
-    			LOGGER.warning("No se pudo eliminar el fichero caducado " + tempFile.getAbsolutePath() + //$NON-NLS-1$
-    					": " + e); //$NON-NLS-1$
+    			LOGGER.warning(
+					"No se pudo eliminar el fichero caducado " + tempFile.getAbsolutePath() + ": " + e //$NON-NLS-1$ //$NON-NLS-2$
+				);
     		}
     	}
     }
 
-    /**
-     * Filtro de ficheros para la obtenci&oacute;n de ficheros de datos
-     * que se hayan modificado hace m&aacute;s del tiempo indicado.
-     */
-    private static class ExpiredFileFilter implements FileFilter {
+    /** Filtro de ficheros para la obtenci&oacute;n de ficheros de datos
+     * que se hayan modificado hace m&aacute;s del tiempo indicado. */
+    private static final class ExpiredFileFilter implements FileFilter {
 
     	private final long timeoutMillis;
 
-    	/**
-    	 * Tiempo m&aacute;ximo de vigencia de un fichero.
-    	 * @param timeout Tiempo de vigencia en milisegundos.
-    	 */
+    	/** Tiempo m&aacute;ximo de vigencia de un fichero.
+    	 * @param timeout Tiempo de vigencia en milisegundos. */
     	public ExpiredFileFilter(final long timeout) {
     		this.timeoutMillis = timeout;
 		}
@@ -208,4 +211,5 @@ public final class TempFilesHelper {
 			return pathname.isFile() && System.currentTimeMillis() > pathname.lastModified() + this.timeoutMillis;
 		}
 
-    }}
+    }
+}
