@@ -56,7 +56,7 @@ final class TestHelper {
 	private static final String STATE_BLOCKED = "BLOCKED"; //$NON-NLS-1$
 	private static final String STATE_WEAK_REGISTRY = "WEAK_REGISTRY"; //$NON-NLS-1$
 
-	private static final String URL_BASE_SERVICE = "http://localhost:8080/clavefirma-test-services/"; //$NON-NLS-1$
+	private static final String URL_BASE_SERVICE = "http://demo.tgm/clavefirma-test-services/"; //$NON-NLS-1$
 
 	private static final String REDIRECT_URL_ID_TAG = "$$TID$$"; //$NON-NLS-1$
 	private static final String REDIRECT_URL_OK_TAG = "$$ROK$$"; //$NON-NLS-1$
